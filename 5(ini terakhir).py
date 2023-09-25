@@ -193,7 +193,7 @@ def decrypt(ciphername,password):
     secret_image = Image.open("secret.jpeg")
     ima = Image.open("2-share_encrypt.jpeg")
     new_image = generate_image_back(secret_image, ima)
-    new_image.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/2-share_decrypt.jpeg")
+    new_image.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/2-share_encrypt.jpeg")
     print("2-share Decryption done....")
     cipher = open(ciphername,'rb')
     ciphertext = cipher.read()

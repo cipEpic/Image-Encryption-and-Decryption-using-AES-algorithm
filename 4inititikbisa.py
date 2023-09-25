@@ -91,8 +91,8 @@ def level_one_encrypt(Imagename):
     prepared_image = prepare_message_image(message_image, size)
     ciphered_image = generate_ciphered_image(secret_image, prepared_image)
     ciphered_image.save("2-share_encrypt.jpeg")
-    secret_image.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/secret.jpeg".encode('utf-8').decode(sys.stdout.encoding))
-    ciphered_image.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/2-share_encrypt.jpeg".encode('utf-8').decode(sys.stdout.encoding))
+    secret_image.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/secret.jpeg")
+    ciphered_image.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/2-share_encrypt.jpeg")
 
 
 
@@ -130,8 +130,6 @@ def construct_enc_image(ciphertext,relength,width,height):
     encim = Image.new("RGB", (int(width),int(height)))
     encim.putdata(encimagetwo)
     encim.save("visual_encrypt.jpeg")
-    #baru ditambahin
-    encim.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/visual_encrypt.jpeg")
 
 
 #------------------------- Visual-encryption -------------------------#
@@ -181,8 +179,6 @@ def encrypt(imagename,password):
     g.write(ciphertext)
     construct_enc_image(ciphertext,relength,width,height)
     print("Visual Encryption done.......")
-    level_one_encrypt("visual_encrypt.jpeg")
-    print("2-Share Encryption done.......")
         
 
 
@@ -193,7 +189,7 @@ def decrypt(ciphername,password):
     secret_image = Image.open("secret.jpeg")
     ima = Image.open("2-share_encrypt.jpeg")
     new_image = generate_image_back(secret_image, ima)
-    new_image.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/2-share_decrypt.jpeg")
+    new_image.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/2-share_encrypt.jpeg")
     print("2-share Decryption done....")
     cipher = open(ciphername,'rb')
     ciphertext = cipher.read()
@@ -201,9 +197,9 @@ def decrypt(ciphername,password):
     # decrypt ciphertext with password
     obj2 = AES.new(password,AES.MODE_CBC)
     decrypted = obj2.decrypt(ciphertext)
-    
+
     #decrypted_str = decrypted.encode("utf-8")
-    
+
     #decrypted = unpad(decrypted, AES.block_sizes)
 
 
@@ -236,7 +232,7 @@ def decrypt(ciphername,password):
     step = 3
     finaltextone = [decrypted[i:i + step] for i in range(0, len(decrypted), step)]
     finaltexttwo = []
-    
+
     # convert the RGB tuples to integers (handling invalid literals)
     for i in range(0, len(finaltextone), step):
         try:
@@ -252,6 +248,7 @@ def decrypt(ciphername,password):
     newim.putdata(finaltexttwo)
     newim.save("C:/Users/user/Downloads/KULIAH/mbkm-smt6/git/Image-Encryption-and-Decryption-using-AES-algorithm/Images/visual_decrypt.jpeg")
     print("Visual Decryption done......")
+
     
    
 
@@ -266,6 +263,32 @@ def enc_success(imagename):
    messagebox.showinfo("Success","Encrypted Image: " + imagename)
 
 # image encrypt button event
+# def image_open():
+#     global file_path_e
+
+#     enc_pass = passg.get()
+#     if enc_pass == "":
+#         pass_alert()
+#     else:
+#         password = hashlib.sha256(enc_pass.encode("utf-8")).digest()
+#         filename = filedialog.askopenfilename()
+#         file_path_e = os.path.dirname(filename)
+#         encrypt(filename,password)
+
+# # image decrypt button event
+# def cipher_open():
+#     global file_path_d
+
+#     dec_pass = passg.get()
+#     if dec_pass == "":
+#         pass_alert()
+#     else:
+#         password = hashlib.sha256(dec_pass.encode("utf-8")).digest()
+#         filename = filedialog.askopenfilename()
+#         file_path_d = os.path.dirname(filename)
+#         decrypt(filename,password)
+
+# Image encrypt button event rev
 def image_open():
     global file_path_e
 
@@ -276,9 +299,9 @@ def image_open():
         password = hashlib.sha256(enc_pass.encode("utf-8")).digest()
         filename = filedialog.askopenfilename()
         file_path_e = os.path.dirname(filename)
-        encrypt(filename,password)
+        level_one_encrypt(filename)  # Call the encryption function
 
-# image decrypt button event
+# Image decrypt button event
 def cipher_open():
     global file_path_d
 
@@ -289,7 +312,8 @@ def cipher_open():
         password = hashlib.sha256(dec_pass.encode("utf-8")).digest()
         filename = filedialog.askopenfilename()
         file_path_d = os.path.dirname(filename)
-        decrypt(filename,password)
+        decrypt(filename, password)  # Call the decryption function
+
 
 class App:
   def __init__(self, master):
