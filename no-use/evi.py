@@ -50,6 +50,7 @@ def get_counter():
             return int(file.read())
     except FileNotFoundError:
         return 1
+    
 
 # Function to save the counter value
 def save_counter(counter):
