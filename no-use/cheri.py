@@ -1,30 +1,9 @@
-# from __future__ import division, print_function, unicode_literals
-
-# import sys
-# import random
-# import argparse
-# import logging
-# from tkinter import *
-# from tkinter import filedialog
-# from tkinter import messagebox
-# import os
-# from PIL import ImageTk , Image
-# from PIL import Image
-# import math
-# from Crypto.Cipher import AES
-# from Crypto.Util.Padding import pad, unpad
-# from Crypto.Random import get_random_bytes
-# import hashlib
-# import binascii
-# import numpy as np
-
 from __future__ import division, print_function, unicode_literals
 
 import sys
 import random
 import argparse
 import logging
-import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
@@ -277,19 +256,15 @@ def encrypt(imagename, password, output_folder):
     # Call level_one_encrypt function
     ciphered_image_name = level_one_encrypt(imagename, password, output_folder, counter)  # Call level_one_encrypt without capturing its output
 
-    combined_folder1 = os.path.join(output_folder, f"Images{counter}")
-
-    # Full path to the .crypt file
-    crypt_file_path = os.path.join(combined_folder1, f"Images{counter}.crypt")
-
     # Store encrypted image details in the list
     encrypted_image_info = {
-        "filename": crypt_file_path,
+        "filename": ciphered_image_name,
         "width": width,
         "height": height,
-        "output_folder": combined_folder1
+        "output_folder": output_folder
     }
     encrypted_images.append(encrypted_image_info)
+
     print("Encrypted Images List:", encrypted_images)
 
     return encim_name
@@ -299,17 +274,22 @@ def decrypt(cipher_name, password, width, height, output_folder):
 
     with open('counter.txt', 'r') as file:
         counter1 = int(file.read())
+
+    # Look through each folder (Images1, Images2, etc.)
+    for folder_counter in range(1, counter1 + 1):
+        folder_path = os.path.join(output_folder, f"Images{folder_counter}")
+        print({folder_path})
         
         # Check if the folder exists
-        if os.path.exists(output_folder):
+        if os.path.exists(folder_path):
             # Retrieve decryption information based on the filename
-            secret_image_path = os.path.join(output_folder, f"secret_{width}x{height}_encrypt.jpeg")
-            encrypted_image_path = os.path.join(output_folder, f"ciphered_{width}x{height}_encrypt.jpeg")
+            secret_image_path = os.path.join(folder_path, f"secret_{width}x{height}_encrypt.jpeg")
+            encrypted_image_path = os.path.join(folder_path, f"ciphered_{width}x{height}_encrypt.jpeg")
 
             # Check if the encrypted image exists in the folder
             if os.path.exists(secret_image_path) and os.path.exists(encrypted_image_path):
-                secret_image_path = os.path.join(output_folder, f"secret_{width}x{height}_encrypt.jpeg")
-                encrypted_image_path = os.path.join(output_folder, f"ciphered_{width}x{height}_encrypt.jpeg")
+                secret_image_path = os.path.join(folder_path, f"secret_{width}x{height}_encrypt.jpeg")
+                encrypted_image_path = os.path.join(folder_path, f"ciphered_{width}x{height}_encrypt.jpeg")
 
             # Check if the encrypted image exists in the folder
             if os.path.exists(secret_image_path) and os.path.exists(encrypted_image_path):
@@ -318,10 +298,7 @@ def decrypt(cipher_name, password, width, height, output_folder):
 
                 # Perform decryption and save the image
                 new_image = generate_image_back(secret_image, encrypted_image)
-                combined_path = os.path.join(output_folder, output_folder)
-                os.makedirs(combined_path, exist_ok=True)
-                cipher_path1 = os.path.join(combined_path, f"2-share_decrypt.jpeg")
-                new_image.save(cipher_path1)
+                new_image.save("2-share_decrypt.jpeg")
 
                 # Read ciphertext from the specified file
                 with open(cipher_name, 'rb') as cipher_file:
@@ -334,50 +311,49 @@ def decrypt(cipher_name, password, width, height, output_folder):
                 # Remove padding after decryption (if padding was added during encryption)
                 decrypted = unpad(decrypted, AES.block_size)
 
-                a1="n"
-                a11 = a1.encode("utf-8")
-                a2="w"
-                a21 = a2.encode("utf-8")
-                a3="h"
-                a31 = a3.encode("utf-8")
-            # a4=bytes("w")
-                a5=b""
-                a51 = a5
+                return decrypted
+            else:
+                print(f"Decryption information not found in folder Images{folder_counter}")
 
-                decrypted = decrypted.replace(a11,a51)
+    print("No matching encrypted image found for decryption.")
+    return None
 
-                # extract dimensions of images
-                newwidth = decrypted.split(a21)[1]
-                newheight = decrypted.split(a31)[1]
-
-                # replace height and width with empty space in decrypted plaintext
-                heightr = b"h" + newheight + b"h"
-                widthr = b"w" + newwidth + b"w"
-                decrypted = decrypted.replace(heightr, a51)
-                decrypted = decrypted.replace(widthr, a51)
-
-                # reconstruct the list of RGB tuples from the decrypted plaintext
-                step = 3
-                finaltextone = [decrypted[i:i + step] for i in range(0, len(decrypted), step)]
-                finaltexttwo = []
-                
-                # convert the RGB tuples to integers (handling invalid literals)
-                for i in range(0, len(finaltextone), step):
-                    try:
-                        r = int(finaltextone[i]) - 100
-                        g = int(finaltextone[i + 1]) - 100
-                        b = int(finaltextone[i + 2]) - 100
-                        finaltexttwo.append((r, g, b))
-                    except ValueError:
-                        pass
-
-                # reconstruct image from the list of pixel RGB tuples
-                newim = Image.new("RGB", (int(newwidth), int(newheight)))
-                newim.putdata(finaltexttwo)
-                cipher_path2 = os.path.join(combined_path, f"visual_decrypt.jpeg")
-                newim.save(cipher_path2)
-                print("Visual Decryption done......")
                
+def cipher_open():
+    global file_path_d
+
+    dec_pass = passg.get()
+    if dec_pass == "":
+        pass_alert()
+    else:
+        password = hashlib.sha256(dec_pass.encode("utf-8")).digest()
+        filename = filedialog.askopenfilename()
+        file_path_d = os.path.dirname(filename)
+
+        # Print the selected filename for debugging
+        print("Selected Filename:", filename)
+
+        # Retrieve decryption information based on filename
+        decrypted_image_info = None
+        print("Encrypted Images List:", encrypted_images)
+        for image_info in encrypted_images:
+            print("Checking Image Info:", image_info)
+            if image_info["filename"] == filename:
+                decrypted_image_info = image_info
+                break
+
+        print("Decrypted Image Info:", decrypted_image_info)
+
+        if decrypted_image_info:
+            width = decrypted_image_info["width"]
+            height = decrypted_image_info["height"]
+            output_folder = decrypted_image_info["output_folder"]
+
+            decrypt(filename, password, width, height, output_folder)
+        else:
+            # Handle case when decryption information is not found for the selected file
+            messagebox.showinfo("Decryption Error", "Decryption information not found for the selected file.")
+
 
 def pass_alert():
    messagebox.showinfo("Password Alert","Please enter a password.")
@@ -412,40 +388,18 @@ def cipher_open():
         pass_alert()
     else:
         password = hashlib.sha256(dec_pass.encode("utf-8")).digest()
-        # filename = filedialog.askopenfilename()
-        # file_path_d = os.path.dirname(filename)
-        # print(file_path_d)
-        
-        # # Retrieve decryption information based on filename
-        # decrypted_image_info = None
-        # print("Encrypted Images List:", encrypted_images)
-        # for image_info in encrypted_images:
-        #     normalized_path = os.path.normpath(image_info["filename"])
-        #     normalized_filename = os.path.normpath(filename)
-        #     print(normalized_path)
-        #     print(normalized_filename)
-        #     if normalized_path == normalized_filename:
-        #         decrypted_image_info = image_info
-        #         break
-
-        # print(decrypted_image_info)
         filename = filedialog.askopenfilename()
-        print(filename)
-
+        file_path_d = os.path.dirname(filename)
+        
         # Retrieve decryption information based on filename
         decrypted_image_info = None
-        print("Encrypted Images List:", encrypted_images)
+        print(encrypted_images)
         for image_info in encrypted_images:
-            normalized_path = os.path.normpath(image_info["filename"])
-            normalized_filename = os.path.normpath(filename)
-            print(normalized_path)
-            print(normalized_filename)
-            if normalized_path == normalized_filename:
+            if image_info["filename"] == filename:
                 decrypted_image_info = image_info
                 break
 
-        print(decrypted_image_info)
-
+        print({decrypted_image_info})
 
         if decrypted_image_info:
             width = decrypted_image_info["width"]
@@ -462,7 +416,7 @@ class App:
   def __init__(self, master):
     global passg
     title = "Image Encryption"
-    author = "Made by Kelompok 1"
+    author = "Made by Vignesh"
     msgtitle = Message(master, text =title)
     msgtitle.config(font=('helvetica', 17, 'bold'), width=200)
     msgauthor = Message(master, text=author)
@@ -492,12 +446,8 @@ class App:
     self.decrypt.pack(side=RIGHT)
 
 
-
-
 # ------------------ MAIN -------------#
-root = tk.Tk()
+root = Tk()
 root.wm_title("Image Encryption")
-# Replace 'path/to/your/icon.ico' with the actual path to your icon file
-root.iconbitmap('Images\Logo-unud-baru.ico')
 app = App(root)
 root.mainloop()
